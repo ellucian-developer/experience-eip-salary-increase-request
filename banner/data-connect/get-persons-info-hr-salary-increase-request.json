@@ -1,0 +1,129 @@
+{
+  "name": "get-persons-info-hr-salary-increase-request",
+  "parameters": [
+    {
+      "name": "ethosApiKey",
+      "type": "string",
+      "sensitive": true
+    },
+    {
+      "name": "id",
+      "type": "string"
+    },
+    {
+      "name": "erpId",
+      "type": "string",
+      "required": true
+    }
+  ],
+  "apiDefinition": {
+    "authType": "userToken",
+    "httpVerb": "GET"
+  },
+  "pipeline": [
+    "Payload Setup",
+    "Fetch institution-jobs",
+    "Sort Institution Jobs",
+    "Fetch institution-positions",
+    "Prepare Response",
+    "Fetch employment-departments",
+    "Setup Department",
+    "Fetch employee-job-assignments",
+    "Setup Response"
+  ],
+  "segments": {
+    "Payload Setup": {
+      "class": "JavaScriptTransform",
+      "config": {
+        "pushUndefined": true,
+        "stopOnError": false,
+        "draft": false,
+        "code": "function transform (message, context) {\n  const { id }  = context;\n  message.payload = encodeURI(JSON.stringify({ person: {id }}));\n  return message;\n}\n"
+      }
+    },
+    "Fetch institution-jobs": {
+      "class": "ethosProxyGetFilter",
+      "config": {
+        "resource": "institution-jobs",
+        "filter": "?criteria={{message.payload}}",
+        "acceptVersions": [
+          "12.2.0"
+        ],
+        "cache": false,
+        "queryByPost": false,
+        "ignoreErrors": false
+      }
+    },
+    "Sort Institution Jobs": {
+      "class": "JavaScriptTransform",
+      "config": {
+        "pushUndefined": true,
+        "stopOnError": false,
+        "draft": false,
+        "code": "function transform (message, context) {\n  const institutionJobsData = message.payload;\n  \n  let record = [];\n  \n  // Sort and fetch the latest data\n  if (Array.isArray(institutionJobsData) && institutionJobsData.length > 0) {\n    let latestInstitutionJobs = institutionJobsData.filter( e => \n      e.preference === 'primary' && e.status === 'active'\n    );\n    latestInstitutionJobs.sort((a, b) => {\n      const { startOn: aStartOn = 'null', endOn: aEndOn = 'null' } = a;\n      const { startOn: bStartOn = 'null', endOn: bEndOn = 'null' } = b;\n      let result = bStartOn?.localeCompare(aStartOn);\n      if (result === 0) {\n          result = aEndOn?.localeCompare(bEndOn); // sort endOn ascending\n      }\n      \n      return result;\n    });\n    record = (latestInstitutionJobs?.length > 0) ? latestInstitutionJobs[0] : {};\n  }\n  \n  // Fetch salary information\n  let [salary = {}] = record.salaries || [];\n  if (!Object.keys(salary).length) {\n    context.set(\"__httpStatusCode\", 400);\n    context.set(\"__httpStatusMessage\", { message: 'Salary not found' });\n    throw new Error('Salary not found');\n  }\n\n  if (!record?.position?.id) {\n    context.set(\"__httpStatusCode\", 400);\n    context.set(\"__httpStatusMessage\", { message: 'Position ID not found' });\n    throw new Error('Position ID not found');\n  }\n  \n  if (!record?.department?.id) {\n    context.set(\"__httpStatusCode\", 400);\n    context.set(\"__httpStatusMessage\", { message: 'Department not found' });\n    throw new Error('Department not found');\n  }\n  \n  context.set('departmentId', record?.department?.id);\n  context.set('employerId', record?.employer?.id);\n  context.set('positionId', record?.position?.id);\n  context.set('startOn', record?.startOn);\n  context.set('suffix', record?.suffix);\n  context.set('compensationType', salary.amount.period === 'year' ? 'Salaried' : 'Hourly');\n  context.set('currency', salary.amount.rate.curreny || 'USD')\n  \n  message.payload = {};\n  return message;\n}\n"
+      }
+    },
+    "Fetch institution-positions": {
+      "class": "ethosProxyGet",
+      "config": {
+        "resource": "institution-positions/{{context.positionId}}",
+        "acceptVersions": [
+          "12"
+        ],
+        "cache": false,
+        "ignoreErrors": false
+      }
+    },
+    "Prepare Response": {
+      "class": "JavaScriptTransform",
+      "config": {
+        "pushUndefined": true,
+        "stopOnError": false,
+        "draft": false,
+        "code": "function transform (message, context) {\n  \n  \n  \n  \n  \n  // const payload = {\n  //   bannerId: context.erpId,\n  //   effDate: message.payload.startOn,\n  //   suff: message.payload.suffix,\n  //   compensationType: message.payload.compensationType,\n  //   departmentId: \"\",\n  //   employerId: message.payload.employerId,\n    \n  // }\n  const info = message.payload || {};\n  if (Object.keys(info).length > 0) {\n    let code = info?.code;\n    context.set('positionCode', info?.code);\n  } else {\n    context.set(\"__httpStatusCode\", 400);\n    context.set(\"__httpStatusMessage\", { message: 'Position Code not found' });\n    throw new Error('Position Code not found');\n  }\n  \n  message.payload = {};\n  return message;\n}\n"
+      }
+    },
+    "Fetch employment-departments": {
+      "class": "ethosProxyGet",
+      "config": {
+        "resource": "employment-departments/{{context.departmentId}}",
+        "acceptVersions": [
+          "12.1.0"
+        ],
+        "cache": false,
+        "ignoreErrors": false
+      }
+    },
+    "Setup Department": {
+      "class": "JavaScriptTransform",
+      "config": {
+        "pushUndefined": true,
+        "stopOnError": false,
+        "draft": false,
+        "code": "function transform (message, context) {\n  const { title } = message.payload;\n  context.set('departmentTitle', title);\n  \n  message.payload = {};\n  return message;\n}\n"
+      }
+    },
+    "Fetch employee-job-assignments": {
+      "class": "ethosProxyGetFilter",
+      "config": {
+        "resource": "employee-job-assignments",
+        "filter": "?bannerId={{context.erpId}}&posn={{context.positionCode}}&suff={{context.suffix}}&effDate={{context.startOn}}",
+        "acceptVersions": [
+          "1"
+        ],
+        "cache": false,
+        "queryByPost": false,
+        "ignoreErrors": false
+      }
+    },
+    "Setup Response": {
+      "class": "JavaScriptTransform",
+      "config": {
+        "pushUndefined": true,
+        "stopOnError": false,
+        "draft": false,
+        "code": "function transform (message, context) {\n  const {\n    departmentId, \n    departmentTitle, \n    positionCode, \n    positionId,\n    employerId,\n    startOn,\n    suffix,\n    currency,\n    compensationType\n  } = context;\n  \n  const [info = {}] = message.payload || [];\n  \n  if (!Object.keys(info).length) {\n    context.set(\"__httpStatusCode\", 400);\n    context.set(\"__httpStatusMessage\", { message: 'No employee assignment information found' });\n    throw new Error('No employee assignment information found');\n  }\n  \n  message.payload = {\n    departmentId, \n    departmentTitle, \n    positionCode, \n    positionId,\n    employerId,\n    startOn,\n    currency,\n    suffix,\n    compensationType,\n    currentSalary : info?.annSalary,\n    table: info?.salTable,\n    group: info?.sgrpCode,\n    employeePositionTitle: info?.desc\n  };\n  return message;\n}\n"
+      }
+    }
+  }
+}

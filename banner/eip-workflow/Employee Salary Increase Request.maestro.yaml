@@ -1,0 +1,389 @@
+name: Employee Salary Increase Request
+description: Performs Salary Increase Request operation
+maestroYamlVersion: 1.0.0
+type: api
+segments:
+  start-api_85d4f316-b3f1-42be-a6d8-76b45ce3d4e3:
+    class: start-api
+    classDisplayName: Start
+    name: Start
+    config:
+      expirationDate: P120D
+      input:
+        - name: requestDate
+          type: String
+          label: Request Date
+        - name: requestedBy
+          type: String
+          label: Requested By
+          isPerson: false
+        - name: employeeName
+          type: String
+          label: Employee Name
+        - name: employeePositionTitle
+          type: String
+          label: Employee Position Title
+        - name: compensationType
+          type: String
+          label: Compensation Type
+        - name: positionCode
+          type: String
+          label: Position Code
+        - name: currentSalary
+          type: Number
+          label: Current Annual Salary
+          isPerson: false
+        - name: proposedSalary
+          type: String
+          label: Proposed Salary
+        - name: reasonCode
+          type: String
+          label: Reason Code
+        - name: effectiveDate
+          type: String
+          label: Effective Date
+        - name: justification
+          type: String
+          label: Manager Comments
+        - name: suffix
+          type: String
+          label: Suffix
+        - name: personId
+          type: String
+          label: Person Id
+        - name: currency
+          type: String
+          label: Currency
+        - name: departmentId
+          type: String
+          label: Department Id
+        - name: employerId
+          type: String
+          label: Employer Id
+        - name: positionId
+          type: String
+          label: Position Id
+        - name: grade
+          type: String
+          label: Grade
+        - name: step
+          type: String
+          label: Step
+        - name: erpId
+          type: String
+          label: Erp Id
+    out:
+      - approval-task_636df8d2-58bf-4136-833e-beb3be160ac9
+  approval-task_636df8d2-58bf-4136-833e-beb3be160ac9:
+    class: approval-task
+    classDisplayName: Approval Task
+    segmentDescription: A task for Salary Increase Request Workflow
+    name: Salary Increase Approval
+    config:
+      approvalView:
+        approvalDetails: ""
+        approvalSelectedData:
+          - name: requestDate
+            type: string
+            displayName: Request Date
+          - name: requestedBy
+            type: string
+            displayName: Requested By
+          - name: employeeName
+            type: string
+            displayName: Employee Name
+          - name: employeePositionTitle
+            type: string
+            displayName: Employee Position Title
+          - name: compensationType
+            type: string
+            displayName: Compensation Type
+          - name: positionCode
+            type: string
+            displayName: Position ID
+          - name: currentSalary
+            type: number
+            displayName: Current Annual Salary
+          - name: proposedSalary
+            type: string
+            displayName: Proposed Salary
+          - name: reasonCode
+            type: string
+            displayName: Reason Code
+          - name: effectiveDate
+            type: string
+            displayName: Effective Date
+          - name: justification
+            type: string
+            displayName: Manager Comments
+          - name: __approval_task_636df8d2_58bf_4136_833e_beb3be160ac9_comment
+            displayName: Salary Increase Approval Comment
+        approvalDetailsSelectedData: []
+        isCommentEnabled: true
+      userTaskActions:
+        - label: Approve
+          value: approve
+        - label: Deny
+          value: deny
+      assigneeType: person
+      assignee: 17bd6f8e-80dc-41d6-8370-b8cf1a2e4721
+      sendExperienceNotification: true
+      expNotificationMessage:
+        assignment: A task for {workflowName} has been assigned.
+        dueDate: A task for {workflowName} is overdue.
+      expNotificationIcon:
+        assignment: requirements
+        dueDate: requirements
+    in:
+      - start-api_85d4f316-b3f1-42be-a6d8-76b45ce3d4e3
+    out:
+      - split-task_5f7e8e0d-c71f-4413-964a-c7cc02cc1645
+  approval-task_a1d84187-6db6-4384-a5e1-87fbdf5ddbd8:
+    class: approval-task
+    classDisplayName: Approval Task
+    segmentDescription: A task for Salary Increase Request Workflow
+    name: Salary Increase HR Approval
+    config:
+      approvalView:
+        approvalDetails: ""
+        approvalSelectedData:
+          - name: requestDate
+            type: string
+            displayName: Request Date
+          - name: requestedBy
+            type: string
+            displayName: Requested By
+          - name: employeeName
+            type: string
+            displayName: Employee Name
+          - name: employeePositionTitle
+            type: string
+            displayName: Employee Position Title
+          - name: compensationType
+            type: string
+            displayName: Compensation Type
+          - name: positionCode
+            type: string
+            displayName: Position ID
+          - name: currentSalary
+            type: number
+            displayName: Current Annual Salary
+          - name: proposedSalary
+            type: string
+            displayName: Proposed Salary
+          - name: reasonCode
+            type: string
+            displayName: Reason Code
+          - name: effectiveDate
+            type: string
+            displayName: Effective Date
+          - name: justification
+            type: string
+            displayName: Manager Comments
+          - name: __approval_task_636df8d2_58bf_4136_833e_beb3be160ac9_comment
+            type: string
+            displayName: Salary Increase Approval Comment
+          - name: __approval_task_a1d84187_6db6_4384_a5e1_87fbdf5ddbd8_comment
+            displayName: Salary Increase HR Approval Comment
+        approvalDetailsSelectedData: []
+        isCommentEnabled: true
+      userTaskActions:
+        - label: Approve
+          value: approve
+        - label: Deny
+          value: deny
+      assigneeType: group
+      assignee: e76f521c-954e-484c-8119-64214980e7cc
+      sendExperienceNotification: true
+      expNotificationMessage:
+        assignment: A task for {workflowName} has been assigned.
+        dueDate: A task for {workflowName} is overdue.
+      expNotificationIcon:
+        assignment: requirements
+        dueDate: requirements
+    in:
+      - split-task_5f7e8e0d-c71f-4413-964a-c7cc02cc1645
+    out:
+      - split-task_5c4959ac-8790-4b17-8d3e-aa9a4e83ad30
+  action_3d0750c4-f8e0-471d-938c-74d86e846438:
+    class: action
+    classDisplayName: Action
+    name: Update Institution Jobs
+    config:
+      code: UPDATEINSTITUTIONJOBS
+      version: 1.0.0
+      isBaseline: false
+      parameters: []
+      inputs:
+        - inputSchemaName: grade
+          processVariableName: grade
+          mapType: processVariable
+        - inputSchemaName: personId
+          processVariableName: personId
+          mapType: processVariable
+        - inputSchemaName: employerId
+          processVariableName: employerId
+          mapType: processVariable
+        - inputSchemaName: positionId
+          processVariableName: positionId
+          mapType: processVariable
+        - inputSchemaName: departmentId
+          processVariableName: departmentId
+          mapType: processVariable
+        - inputSchemaName: currency
+          processVariableName: currency
+          mapType: processVariable
+        - inputSchemaName: startOn
+          processVariableName: effectiveDate
+          mapType: processVariable
+        - inputSchemaName: suffix
+          processVariableName: suffix
+          mapType: processVariable
+        - inputSchemaName: status
+          staticValue: active
+          mapType: staticValue
+        - inputSchemaName: salary
+          processVariableName: proposedSalary
+          mapType: processVariable
+        - inputSchemaName: period
+          staticValue: year
+          mapType: staticValue
+        - inputSchemaName: step
+          mapType: processVariable
+          processVariableName: step
+        - inputSchemaName: erpId
+          processVariableName: erpId
+          mapType: processVariable
+        - inputSchemaName: positionCode
+          processVariableName: positionCode
+          mapType: processVariable
+        - inputSchemaName: justification
+          processVariableName: justification
+          mapType: processVariable
+    in:
+      - split-task_5c4959ac-8790-4b17-8d3e-aa9a4e83ad30
+    out:
+      - manual-task_fd79b852-2738-4976-90ba-627b7f726965
+  manual-task_fd79b852-2738-4976-90ba-627b7f726965:
+    class: manual-task
+    classDisplayName: Simple Task
+    segmentDescription: Your request for salary increase has been approved by the appliers
+    name: Salary Increase Request - Approved
+    config:
+      taskDetails: >-
+        <p>Your request for salary increase has been approved by the
+        appliers</p>
+      taskDetailsSelectedData: []
+      userTaskActions:
+        - label: Complete
+          value: complete
+      assigneeType: data
+      assignee: __requestedBy
+      sendExperienceNotification: true
+      expNotificationMessage:
+        assignment: A task for {workflowName} has been assigned.
+        dueDate: A task for {workflowName} is overdue.
+      expNotificationIcon:
+        assignment: requirements
+        dueDate: requirements
+    in:
+      - action_3d0750c4-f8e0-471d-938c-74d86e846438
+    out:
+      - end_adf4fd8f-f7ae-401b-96d1-9935861e03be
+  end_adf4fd8f-f7ae-401b-96d1-9935861e03be:
+    class: end
+    classDisplayName: End
+    name: End
+    config: {}
+    in:
+      - manual-task_fd79b852-2738-4976-90ba-627b7f726965
+  manual-task_7d50c1fa-6579-421b-8268-2f8036195a43:
+    class: manual-task
+    classDisplayName: Simple Task
+    segmentDescription: Your request for salary increase has been rejected by the appliers
+    name: Salary Increase Request - Rejected
+    config:
+      taskDetails: >-
+        <p>Your request for salary increase has been rejected by the
+        appliers</p>
+      taskDetailsSelectedData: []
+      userTaskActions:
+        - label: Complete
+          value: complete
+      assigneeType: data
+      assignee: __requestedBy
+      sendExperienceNotification: true
+      expNotificationMessage:
+        assignment: A task for {workflowName} has been assigned.
+        dueDate: A task for {workflowName} is overdue.
+      expNotificationIcon:
+        assignment: requirements
+        dueDate: requirements
+    in:
+      - split-task_5c4959ac-8790-4b17-8d3e-aa9a4e83ad30
+    out:
+      - end_ea2ce3c2-cc9e-46ff-ac17-fc1f18581cf9
+  end_ea2ce3c2-cc9e-46ff-ac17-fc1f18581cf9:
+    class: end
+    classDisplayName: End
+    name: End
+    config: {}
+    in:
+      - manual-task_7d50c1fa-6579-421b-8268-2f8036195a43
+  split-task_5c4959ac-8790-4b17-8d3e-aa9a4e83ad30:
+    class: split-task
+    classDisplayName: Split
+    name: Split2
+    config: {}
+    in:
+      - approval-task_a1d84187-6db6-4384-a5e1-87fbdf5ddbd8
+    out:
+      - node: action_3d0750c4-f8e0-471d-938c-74d86e846438
+        condition: default
+      - node: manual-task_7d50c1fa-6579-421b-8268-2f8036195a43
+        condition: __approval_task_a1d84187_6db6_4384_a5e1_87fbdf5ddbd8_outcome == 'deny'
+  manual-task_3503d3f1-b200-4949-8962-d609ab95cbdb:
+    class: manual-task
+    classDisplayName: Simple Task
+    segmentDescription: Your request for salary increase has been rejected by the approvers
+    name: Salary Increase Request - Declined
+    config:
+      taskDetails: >-
+        <p>Your request for salary increase has been rejected by the
+        approvers</p>
+      taskDetailsSelectedData: []
+      userTaskActions:
+        - label: Complete
+          value: complete
+      assigneeType: data
+      assignee: __requestedBy
+      sendExperienceNotification: true
+      expNotificationMessage:
+        assignment: A task for {workflowName} has been assigned.
+        dueDate: A task for {workflowName} is overdue.
+      expNotificationIcon:
+        assignment: requirements
+        dueDate: requirements
+    in:
+      - split-task_5f7e8e0d-c71f-4413-964a-c7cc02cc1645
+    out:
+      - end_44a133d1-d16d-4d33-bc2d-1d4d9674d046
+  end_44a133d1-d16d-4d33-bc2d-1d4d9674d046:
+    class: end
+    classDisplayName: End
+    name: End
+    config: {}
+    in:
+      - manual-task_3503d3f1-b200-4949-8962-d609ab95cbdb
+  split-task_5f7e8e0d-c71f-4413-964a-c7cc02cc1645:
+    class: split-task
+    classDisplayName: Split
+    name: Split
+    config: {}
+    in:
+      - approval-task_636df8d2-58bf-4136-833e-beb3be160ac9
+    out:
+      - node: approval-task_a1d84187-6db6-4384-a5e1-87fbdf5ddbd8
+        condition: default
+      - node: manual-task_3503d3f1-b200-4949-8962-d609ab95cbdb
+        condition: __approval_task_636df8d2_58bf_4136_833e_beb3be160ac9_outcome == 'deny'

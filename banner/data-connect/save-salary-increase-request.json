@@ -1,0 +1,133 @@
+{
+  "name": "save-salary-increase-request",
+  "apiDefinition": {
+    "authType": "ethosToken",
+    "httpVerb": "POST",
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "object",
+      "properties": {
+        "step": {
+          "type": "string",
+          "title": "Step"
+        },
+        "grade": {
+          "type": "string",
+          "title": "Grade"
+        },
+        "period": {
+          "type": "string",
+          "title": "Period"
+        },
+        "salary": {
+          "type": "string",
+          "title": "Salary"
+        },
+        "status": {
+          "type": "string",
+          "title": "Status"
+        },
+        "suffix": {
+          "type": "string",
+          "title": "Suffix"
+        },
+        "startOn": {
+          "type": "string",
+          "title": "Start On"
+        },
+        "currency": {
+          "type": "string",
+          "title": "Currency"
+        },
+        "personId": {
+          "type": "string",
+          "title": "Person Id"
+        },
+        "employerId": {
+          "type": "string",
+          "title": "Employer Id"
+        },
+        "positionId": {
+          "type": "string",
+          "title": "Position Id"
+        },
+        "departmentId": {
+          "type": "string",
+          "title": "Department Id"
+        },
+        "justification": {
+          "type": "string",
+          "title": "Justification"
+        },
+        "positionCode": {
+          "type": "string"
+        },
+        "erpId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "step",
+        "grade",
+        "period",
+        "salary",
+        "status",
+        "suffix",
+        "startOn",
+        "currency",
+        "personId",
+        "employerId",
+        "positionId",
+        "departmentId",
+        "justification",
+        "positionCode",
+        "erpId"
+      ]
+    }
+  },
+  "pipeline": [
+    "Prepare Payload",
+    "institution-jobs",
+    "JavaScript Transform",
+    "xempjust"
+  ],
+  "segments": {
+    "Prepare Payload": {
+      "class": "JavaScriptTransform",
+      "config": {
+        "pushUndefined": true,
+        "stopOnError": false,
+        "draft": false,
+        "code": "function transform (message, context) {\n  const payload = {\n      \"department\": {\n        \"id\": message.payload.departmentId\n      },\n      \"employer\": {\n        \"id\": message.payload.employerId\n      },\n      \"id\": \"00000000-0000-0000-0000-000000000000\",\n      \"person\": {\n        \"id\": message.payload.personId\n      },\n      \"position\": {\n        \"id\": message.payload.positionId\n      },\n      \"salaries\": [\n        {\n          \"amount\": {\n            \"period\": message.payload.period,\n            \"rate\": {\n              \"currency\": message.payload.currency,\n              \"value\": Number(message.payload.salary)\n            }\n          },\n          \"grade\": message.payload.grade,\n          \"step\": message.payload.step\n        }\n      ],\n      \"startOn\": message.payload.startOn,\n      \"status\": message.payload.status,\n      \"suffix\": message.payload.suffix\n  }\n\n  message.payload = payload;\n  return message;\n}\n"
+      }
+    },
+    "institution-jobs": {
+      "class": "ethosProxyPost",
+      "config": {
+        "resource": "institution-jobs",
+        "contentVersion": "12",
+        "acceptVersion": "12",
+        "target": "jobs",
+        "ignoreErrors": false
+      }
+    },
+    "JavaScript Transform": {
+      "class": "JavaScriptTransform",
+      "config": {
+        "pushUndefined": true,
+        "stopOnError": false,
+        "draft": false,
+        "code": "function transform (message, context) {\n  message.payload = {\n    \"id\": \"00000000-0000-0000-0000-000000000000\",\n    \"xbannerId\": message.payload.erpId,\n    \"xempjustPosn\": message.payload.positionCode,\n    \"xempjustSuff\": message.payload.suffix,\n    \"xempjustEffectiveDate\": message.payload.startOn,\n    \"xempjustJustification\": message.payload.justification\n  }\n  return message;\n}\n"
+      }
+    },
+    "xempjust": {
+      "class": "ethosProxyPost",
+      "config": {
+        "resource": "x-xempjust",
+        "contentVersion": "1",
+        "acceptVersion": "1",
+        "ignoreErrors": false
+      }
+    }
+  }
+}

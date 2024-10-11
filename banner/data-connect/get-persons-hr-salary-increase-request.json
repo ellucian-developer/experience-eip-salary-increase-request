@@ -1,0 +1,48 @@
+{
+  "name": "get-persons-hr-salary-increase-request",
+  "parameters": [
+    {
+      "name": "ethosApiKey",
+      "type": "string",
+      "required": true,
+      "sensitive": true
+    },
+    {
+      "name": "search",
+      "type": "string",
+      "required": true
+    }
+  ],
+  "apiDefinition": {
+    "authType": "userToken",
+    "httpVerb": "GET"
+  },
+  "pipeline": [
+    "JavaScript Transform",
+    "Ethos Proxy Get with Filter"
+  ],
+  "segments": {
+    "JavaScript Transform": {
+      "class": "JavaScriptTransform",
+      "config": {
+        "pushUndefined": true,
+        "stopOnError": false,
+        "draft": false,
+        "code": "function transform (message, context) {\n  const { search } = context;\n  const pattern = /^(?:[A-Z0-9]+|[A-Z]+)$/;\n  \n  let conditions = {};\n  if (pattern.test(search)) {\n    conditions = {\n      \"credentials\":[{\"type\":\"bannerId\",\"value\": search }]\n    }\n  } else {\n    const [name1, name2, name3] = search.split(/\\s+/);\n    \n    const nameCriteria = {};\n    if (name3) {\n        nameCriteria.firstName = name1;\n        nameCriteria.middleName = name2;\n        nameCriteria.lastName = name3;\n    } else if (name2) {\n        nameCriteria.firstName = name1;\n        nameCriteria.lastName = name2;\n    } else if (name1) {\n        nameCriteria.lastName = name1;\n    }\n    \n    conditions = {\n      \"roles\":[{\"role\":\"employee\"}],\n      \"names\": [nameCriteria]\n    }\n  }\n  \n  // message.payload = conditions;\n  message.payload = encodeURI(JSON.stringify(conditions));\n  return message;\n}\n"
+      }
+    },
+    "Ethos Proxy Get with Filter": {
+      "class": "ethosProxyGetFilter",
+      "config": {
+        "resource": "persons",
+        "filter": "?criteria={{message.payload}}&limit=5",
+        "acceptVersions": [
+          "12.6.0"
+        ],
+        "cache": false,
+        "queryByPost": false,
+        "ignoreErrors": false
+      }
+    }
+  }
+}

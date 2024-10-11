@@ -1,0 +1,30 @@
+{
+  "name": "get-job-change-reasons-hr-salary-increase-request",
+  "parameters": [
+    {
+      "name": "ethosApiKey",
+      "type": "string",
+      "sensitive": true
+    }
+  ],
+  "apiDefinition": {
+    "authType": "userToken",
+    "httpVerb": "GET"
+  },
+  "pipeline": [
+    "Ethos Proxy Get"
+  ],
+  "segments": {
+    "Ethos Proxy Get": {
+      "class": "ethosProxyGet",
+      "config": {
+        "resource": "job-change-reasons",
+        "acceptVersions": [
+          "7"
+        ],
+        "cache": false,
+        "ignoreErrors": false
+      }
+    }
+  }
+}

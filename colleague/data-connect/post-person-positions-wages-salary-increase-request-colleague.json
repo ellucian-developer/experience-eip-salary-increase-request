@@ -1,0 +1,66 @@
+{
+  "name": "post-person-positions-wages-salary-increase-request-colleague",
+  "apiDefinition": {
+    "authType": "ethosToken",
+    "httpVerb": "POST",
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "salary": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "salary",
+        "date"
+      ]
+    }
+  },
+  "pipeline": [
+    "Ethos Proxy Get with Filter",
+    "JavaScript Transform",
+    "Ethos Proxy Post"
+  ],
+  "segments": {
+    "Ethos Proxy Get with Filter": {
+      "class": "ethosProxyGetFilter",
+      "config": {
+        "resource": "person-positions-wages?effectivePersonId={{message.payload.id}}",
+        "payloadTargetPath": "wages",
+        "acceptVersions": [
+          "1"
+        ],
+        "cache": false,
+        "queryByPost": false,
+        "ignoreErrors": false
+      }
+    },
+    "JavaScript Transform": {
+      "class": "JavaScriptTransform",
+      "config": {
+        "pushUndefined": true,
+        "stopOnError": false,
+        "draft": false,
+        "code": "function transform (message, context) {\n  let { wages: records } = message.payload;\n  \n  /**\n   * Sorting the records by ID desc would yield us the \n   * latest record change.\n   */\n  records = records.sort((a, b) => b.Id - a.Id);\n\n  const [first = {}] = records;\n  if (!Object.keys(first).length) {\n    /**\n     * throw error\n     */\n  }\n  \n  message.payload = {\n    old: first,\n    new: {\n      ...first,\n      BaseAmount: message.payload.salary,\n      StartDate: message.payload.date,\n      Id: \"\",\n    }\n  }\n  \n  \n  return message;\n}\n"
+      }
+    },
+    "Ethos Proxy Post": {
+      "class": "ethosProxyPost",
+      "config": {
+        "resource": "person-positions-wages",
+        "contentVersion": "1",
+        "acceptVersion": "1",
+        "bodyPath": "new",
+        "ignoreErrors": false
+      }
+    }
+  }
+}
