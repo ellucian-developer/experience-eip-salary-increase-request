@@ -14,14 +14,11 @@ import {
 	Search,
 	Button,
 	Divider,
-	// Dropdown,
 	Snackbar,
 	Skeleton,
-	// DropdownItem,
 	SearchItem,
 	Typography,
 	DatePicker,
-	CircularProgress,
 	makeStyles
 } from "@ellucian/react-design-system/core";
 import React, { useState, useEffect, useCallback } from "react";
@@ -113,7 +110,8 @@ const useStyles = makeStyles((theme) => {
 			display: "flex",
 			flexDirection: "row",
 			gap: "10px",
-			justifyContent: "flex-end"
+			justifyContent: "flex-end",
+			alignItems: "center",
 		},
 		skelton: {
 			width: "200px",
@@ -224,7 +222,31 @@ const SalaryIncreaseRequestPage = () => {
 		}
 	}, [data.personId, data.erpId, setPersonInfoQuerys, setPersonInfoEnabled]);
 
-	console.log(userInfo);
+	const reset = () => {
+		setData({
+			...data,
+			employeeName: "",
+			personId: "",
+			justification: "",
+			effectiveDate: "",
+			step: "",
+			compensationType: "",
+			currency: "",
+			proposedSalary: "",
+			currentSalary: "",
+			departmentId: "",
+			departmentTitle: "",
+			employeePositionTitle: "",
+			employerId: "",
+			group: "",
+			positionCode: "",
+			positionId: "",
+			reasonForWageBox: "",
+			startOn: "",
+			suffix: "",
+			erpId: "",
+		});
+	};
 
 	const submitForm = async (e) => {
 		e.preventDefault();
@@ -538,14 +560,30 @@ const SalaryIncreaseRequestPage = () => {
 											}));
 										}}
 										classes={classes.field}
+										PopperProps={{
+											modifiers: [
+												{
+													name: 'flip',
+													enabled: true,
+												},
+											]
+										}}
 									/>
 								</div>
 								<Divider />
 								<div className={classes.submitButtonWrapper}>
-									{submitting && <CircularProgress />}
-									<Button id={`${customId}-submit`} type="submit" disabled={!data.personId || submitting}>
-										{submitting ? "Submitting" : "Submit"}
-									</Button>
+									<div>
+										<Button 
+											onClick={reset}
+											variant="text" type="button" disabled={!data.personId}>
+											Reset
+										</Button>
+									</div>
+									<div>
+										<Button id={`${customId}-submit`} type="submit" disabled={!data.personId || submitting}>
+											{submitting ? "Submitting" : "Submit"}
+										</Button>
+									</div>
 								</div>
 							</div>
 						</Card>
