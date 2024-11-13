@@ -213,13 +213,11 @@ const SalaryIncreaseRequestPage = () => {
 	}, [personInfo]);
 
 	useEffect(() => {
-		if (data.personId && data.erpId) {
-			setPersonInfoQuerys({
-				erpId: data.erpId,
-				id: data.personId
-			});
-			setPersonInfoEnabled(true);
-		}
+		setPersonInfoQuerys({
+			erpId: data.erpId,
+			id: data.personId
+		});
+		setPersonInfoEnabled(true);
 	}, [data.personId, data.erpId, setPersonInfoQuerys, setPersonInfoEnabled]);
 
 	const reset = () => {

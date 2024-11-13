@@ -20,8 +20,8 @@ import {
 	DropdownItem,
 	SearchItem,
 	Typography,
-	DatePicker,
 	CircularProgress,
+	DatePicker,
 	makeStyles
 } from "@ellucian/react-design-system/core";
 import React, { useState, useEffect, useCallback } from "react";
@@ -116,7 +116,8 @@ const useStyles = makeStyles((theme) => {
 			display: "flex",
 			flexDirection: "row",
 			gap: "10px",
-			justifyContent: "flex-end"
+			justifyContent: "flex-end",
+			alignItems: "center",
 		},
 		skelton: {
 			width: "200px",
@@ -222,14 +223,32 @@ const SalaryIncreaseRequestPage = () => {
 		}
 	}, [data.employeeName, setPersonsQueryKeys, setPersonsEnabled]);
 
-	// const search = () => {
-	// 	if (data.employeeName && data.employeeName.length > 2) {
-	// 		setPersonsQueryKeys({
-	// 			name: data.employeeName
-	// 		});
-	// 		setPersonsEnabled(true);
-	// 	}
-	// }
+	const reset = () => {
+		setData((data) => ({
+			...data,
+			employeeName: "",
+			personId: "",
+			justification: "",
+			effectiveDate: "",
+			step: "",
+			compensationType: "",
+			currency: "",
+			proposedSalary: "",
+			currentSalary: "",
+			departmentId: "",
+			departmentTitle: "",
+			employeePositionTitle: "",
+			employerId: "",
+			group: "",
+			positionCode: "",
+			positionId: "",
+			startOn: "",
+			suffix: "",
+			table: "",
+			erpId: "",
+			grade: ""
+		}));
+	};
 
 	useEffect(() => {
 		if (data.table && data.group) {
@@ -263,13 +282,11 @@ const SalaryIncreaseRequestPage = () => {
 	}, [personInfo]);
 
 	useEffect(() => {
-		if (data.personId && data.erpId) {
-			setPersonInfoQuerys({
-				erpId: data.erpId,
-				id: data.personId
-			});
-			setPersonInfoEnabled(true);
-		}
+		setPersonInfoQuerys({
+			erpId: data.erpId,
+			id: data.personId
+		});
+		setPersonInfoEnabled(true);
 	}, [data.personId, data.erpId, setPersonInfoQuerys, setPersonInfoEnabled]);
 
 	const submitForm = async (e) => {
@@ -634,6 +651,14 @@ const SalaryIncreaseRequestPage = () => {
 											}));
 										}}
 										classes={classes.field}
+										PopperProps={{
+											modifiers: [
+												{
+													name: 'flip',
+													enabled: true,
+												},
+											]
+										}}
 									/>
 								</div>
 								<Typography gutterTop>
@@ -662,10 +687,18 @@ const SalaryIncreaseRequestPage = () => {
 								</Button> */}
 								<Divider />
 								<div className={classes.submitButtonWrapper}>
-									{submitting && <CircularProgress />}
-									<Button id={`${customId}-submit`} type="submit" disabled={!data.personId || submitting}>
-										{submitting ? "Submitting" : "Submit"}
-									</Button>
+									<div>
+										<Button 
+											onClick={reset}
+											variant="text" type="button" disabled={!data.personId}>
+											Reset
+										</Button>
+									</div>
+									<div>
+										<Button id={`${customId}-submit`} type="submit" disabled={!data.personId || submitting}>
+											{submitting ? "Submitting" : "Submit"}
+										</Button>
+									</div>
 								</div>
 							</div>
 						</Card>
