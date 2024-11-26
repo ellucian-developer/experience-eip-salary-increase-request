@@ -60,10 +60,12 @@
           "title": "Justification"
         },
         "positionCode": {
-          "type": "string"
+          "type": "string",
+          "title": "Position Code"
         },
         "erpId": {
-          "type": "string"
+          "type": "string",
+          "title": "ERP ID"
         }
       },
       "required": [
@@ -89,7 +91,7 @@
     "Prepare Payload",
     "institution-jobs",
     "JavaScript Transform",
-    "xempjust"
+    "xnbrjobs"
   ],
   "segments": {
     "Prepare Payload": {
@@ -98,7 +100,7 @@
         "pushUndefined": true,
         "stopOnError": false,
         "draft": false,
-        "code": "function transform (message, context) {\n  const payload = {\n      \"department\": {\n        \"id\": message.payload.departmentId\n      },\n      \"employer\": {\n        \"id\": message.payload.employerId\n      },\n      \"id\": \"00000000-0000-0000-0000-000000000000\",\n      \"person\": {\n        \"id\": message.payload.personId\n      },\n      \"position\": {\n        \"id\": message.payload.positionId\n      },\n      \"salaries\": [\n        {\n          \"amount\": {\n            \"period\": message.payload.period,\n            \"rate\": {\n              \"currency\": message.payload.currency,\n              \"value\": Number(message.payload.salary)\n            }\n          },\n          \"grade\": message.payload.grade,\n          \"step\": message.payload.step\n        }\n      ],\n      \"startOn\": message.payload.startOn,\n      \"status\": message.payload.status,\n      \"suffix\": message.payload.suffix\n  }\n\n  message.payload = payload;\n  return message;\n}\n"
+        "code": "function transform (message, context) {\n  context.set('erpId', message.payload.erpId);\n  context.set('justification', message.payload.justification);\n  context.set('positionCode', message.payload.positionCode);\n  const payload = {\n      \"department\": {\n        \"id\": message.payload.departmentId\n      },\n      \"employer\": {\n        \"id\": message.payload.employerId\n      },\n      \"id\": \"00000000-0000-0000-0000-000000000000\",\n      \"person\": {\n        \"id\": message.payload.personId\n      },\n      \"position\": {\n        \"id\": message.payload.positionId\n      },\n      \"salaries\": [\n        {\n          \"amount\": {\n            \"period\": message.payload.period,\n            \"rate\": {\n              \"currency\": message.payload.currency,\n              \"value\": Number(message.payload.salary)\n            }\n          },\n          \"grade\": message.payload.grade,\n          \"step\": message.payload.step\n        }\n      ],\n      \"startOn\": message.payload.startOn,\n      \"status\": message.payload.status,\n      \"suffix\": message.payload.suffix\n  }\n\n  message.payload = payload;\n  return message;\n}\n"
       }
     },
     "institution-jobs": {
@@ -116,14 +118,13 @@
       "config": {
         "pushUndefined": true,
         "stopOnError": false,
-        "draft": false,
-        "code": "function transform (message, context) {\n  message.payload = {\n    \"id\": \"00000000-0000-0000-0000-000000000000\",\n    \"xbannerId\": message.payload.erpId,\n    \"xempjustPosn\": message.payload.positionCode,\n    \"xempjustSuff\": message.payload.suffix,\n    \"xempjustEffectiveDate\": message.payload.startOn,\n    \"xempjustJustification\": message.payload.justification\n  }\n  return message;\n}\n"
+        "code": "function transform (message, context) {\n  const { jobs } = message.payload;\n  message.payload = {\n    \"id\": \"00000000-0000-0000-0000-000000000000\",\n    \"xbannerId\": context.erpId,\n    \"xnbrjobsPosn\": context.positionCode,\n    \"xnbrjobsSuff\": jobs.suffix,\n    \"xnbrjobsEffectiveDate\": jobs.startOn,\n    \"xnbrjobsJustification\": context.justification\n  }\n  return message;\n}\n"
       }
     },
-    "xempjust": {
+    "xnbrjobs": {
       "class": "ethosProxyPost",
       "config": {
-        "resource": "x-xempjust",
+        "resource": "x-xnbrjobs",
         "contentVersion": "1",
         "acceptVersion": "1",
         "ignoreErrors": false
