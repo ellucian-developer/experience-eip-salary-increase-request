@@ -15,6 +15,7 @@ import {
 	Button,
 	Divider,
 	Dropdown,
+	DropdownTypeahead,
 	Snackbar,
 	Skeleton,
 	DropdownItem,
@@ -29,8 +30,7 @@ import { usePageControl, useData, useCardInfo, useUserInfo } from "@ellucian/exp
 import { fetchPersons, resourceName as personsResource } from "./data/persons";
 import { fetchPersonInfo, resourceName as personInfoResource } from "./data/get-persons-info-salary-increase-request";
 import { fetchJobChangeReasons, resourceName as jobChangeReasons } from "./data/job-change-reasons";
-import { fetchSalaryGrade, resourceName as salaryGradeResource } from "./data/x-salary-grade";
-import { fetchSalaryStepInfo, resourceName as salaryStepInfoResource } from "./data/x-salary-step-info";
+import { fetchSalaryRateStructure, resourceName as salaryRateStructureResource } from "./data/get-salary-rate-structures-hr-salary-increase-request";
 import { MultiDataQueryProvider, useDataQuery } from "@ellucian/experience-extension-extras";
 import { omit } from "lodash";
 import classNames from "classnames";
@@ -147,6 +147,9 @@ const SalaryIncreaseRequestPage = () => {
 		open: false,
 		message: ""
 	});
+
+	const [availableGrades, setAvailableGrades] = useState([]);
+	// const [gradeError, setGradeError] = useState(false);
 	const { authenticatedEthosFetch } = useData();
 	const [data, setData] = useState({
 		requestDate: new Date().toISOString().split("T")[0],
@@ -182,25 +185,18 @@ const SalaryIncreaseRequestPage = () => {
 	} = useDataQuery(personsResource);
 
 	const {
+		data: salaryRateStructure = [],
+		isLoading: loadingSalaryRateStructure,
+		setEnabled: setSalaryRateStructureEnabled,
+		setQueryKeys: setSalaryRateStructureQuerys
+	} = useDataQuery(salaryRateStructureResource);
+
+	const {
 		data: personInfo = {},
 		isLoading: loadingPersonInfo,
 		setEnabled: setPersonInfoEnabled,
 		setQueryKeys: setPersonInfoQuerys
 	} = useDataQuery(personInfoResource);
-
-	const {
-		data: salaryGrade = [],
-		isLoading: loadingSalaryGrade,
-		setEnabled: setSalaryGradeEnabled,
-		setQueryKeys: setSalaryGradeQuerys
-	} = useDataQuery(salaryGradeResource);
-
-	const {
-		data: salaryStepInfo = [],
-		isLoading: loadingSalaryStepInfo,
-		setEnabled: setSalaryStepInfoEnabled,
-		setQueryKeys: setSalaryStepInfoQuerys
-	} = useDataQuery(salaryStepInfoResource);
 
 	const { data: reasons = [] } = useDataQuery(jobChangeReasons);
 	const customId = "salary-increase-request";
@@ -213,6 +209,13 @@ const SalaryIncreaseRequestPage = () => {
 			}));
 		}
 	}, [userInfo]);
+
+	useEffect(() => {
+		console.log(salaryRateStructure);
+		if (salaryRateStructure.length) {
+			setAvailableGrades(salaryRateStructure.map((item) => item.grade));
+		}
+	}, [salaryRateStructure]);
 
 	useEffect(() => {
 		if (data.employeeName && data.employeeName.length > 2) {
@@ -252,24 +255,13 @@ const SalaryIncreaseRequestPage = () => {
 
 	useEffect(() => {
 		if (data.table && data.group) {
-			setSalaryGradeQuerys({
-				table: data.table,
-				code: data.group
+			setSalaryRateStructureQuerys({
+				payTable: data.table,
+				payGroup: data.group
 			});
-			setSalaryGradeEnabled(true);
+			setSalaryRateStructureEnabled(true);
 		}
-	}, [data.table, data.group, setSalaryGradeQuerys, setSalaryGradeEnabled]);
-
-	useEffect(() => {
-		if (data.table && data.group && data.grade) {
-			setSalaryStepInfoQuerys({
-				table: data.table,
-				code: data.group,
-				grade: data.grade
-			});
-			setSalaryStepInfoEnabled(true);
-		}
-	}, [data.table, data.group, data.grade, setSalaryStepInfoQuerys, setSalaryStepInfoEnabled]);
+	}, [data.table, data.group, setSalaryRateStructureEnabled, setSalaryRateStructureQuerys]);
 
 	useEffect(() => {
 		if (Object.keys(personInfo).length) {
@@ -304,6 +296,9 @@ const SalaryIncreaseRequestPage = () => {
 				};
 			}
 		}
+		payload.variables['proposedSalaryFormatted'] = { value: `${data.currency} ${currenyFormat(data?.proposedSalary)}`};
+		payload.variables['currentSalaryFormatted'] = { value: `${data.currency} ${currenyFormat(data?.currentSalary)}`};
+
 		const args = {
 			options: {
 				method: "POST",
@@ -333,21 +328,6 @@ const SalaryIncreaseRequestPage = () => {
 		}
 		setSubmitting(false);
 	};
-
-	// function mask(input) {
-	// 	// Convert the input to a string in case it is not
-	// 	let str = input.toString();
-
-	// 	// Check if the length of the string is greater than 4
-	// 	if (str.length > 4) {
-	// 		// Mask the first four digits
-	// 		let maskedStr = "XXXX" + str.slice(4);
-	// 		return maskedStr;
-	// 	} else {
-	// 		// If the string is 4 characters or less, return 'XXXX'
-	// 		return "XXXX";
-	// 	}
-	// }
 
 	const currenyFormat = useCallback((amount) => {
 		return Number(amount).toLocaleString("en-US", {
@@ -411,7 +391,6 @@ const SalaryIncreaseRequestPage = () => {
 								<Search
 									id="person-search"
 									name="search"
-									// onSearchInvoked={() => search()}
 									onChange={({ target: { value } }) => {
 										setData({
 											...data,
@@ -424,16 +403,11 @@ const SalaryIncreaseRequestPage = () => {
 										onItemSelect: (event, index) => {
 											const personId = persons[index].id;
 											const erpId = persons[index].credentials.find((item) => item.type === "bannerId")?.value;
-											// const dateOfBirth = persons[index].dateOfBirth;
-											// const ssn = persons[index].credentials.find((item) => item.type === "ssn")?.value;
-
 											setData({
 												...data,
 												employeeName: persons[index]?.names[0].fullName,
 												personId,
-												// dateOfBirth,
 												erpId
-												// ssn
 											});
 										}
 									}}
@@ -484,7 +458,7 @@ const SalaryIncreaseRequestPage = () => {
 											</div>
 										</li>
 										<li className={classes.infoList}>
-											<span className={classes.infoTitle}>Employee Rank:</span>{" "}
+											<span className={classes.infoTitle}>Employee Class:</span>{" "}
 											<div className={classes.dataPoint}>
 												{loadingPersonInfo ? (
 													<Skeleton className={classes.skelton} rectangle paragraph={{ width: 44 }} />
@@ -553,31 +527,51 @@ const SalaryIncreaseRequestPage = () => {
 												)}
 											</div>
 										</li>
+										<li className={classes.infoList}>
+											<span className={classes.infoTitle}>Grade:</span>
+											<div className={classes.dataPoint}>
+												{loadingPersonInfo ? (
+													<Skeleton className={classes.skelton} rectangle paragraph={{ width: 44 }} />
+												) : (
+													data?.grade
+												)}
+											</div>
+										</li>
+										<li className={classes.infoList}>
+											<span className={classes.infoTitle}>Suffix:</span>
+											<div className={classes.dataPoint}>
+												{loadingPersonInfo ? (
+													<Skeleton className={classes.skelton} rectangle paragraph={{ width: 44 }} />
+												) : (
+													data?.suffix
+												)}
+											</div>
+										</li>
 									</ul>
 								)}
 								<Divider />
 								<h4>Request Details</h4>
 								<p>{`Select the appropriate grade and step for the employee's salary adjustment`}</p>
 								<div className={classes.loaderContainer}>
-									<Dropdown
+									<DropdownTypeahead
 										fullWidth
 										id={`${customId}-new-grade`}
-										label={loadingSalaryGrade ? "Loading" : "New Grade"}
-										onChange={({ target: { value } }) => {
+										label={loadingSalaryRateStructure ? "Loading" : "New Grade"}
+										onChange={(value) => {
 											setData({
 												...data,
 												grade: value
 											});
 										}}
-										disabled={!data.personId}
+										disabled={!data.personId || !availableGrades.length}
 										value={data.grade}
 										className={classes.field}
 									>
-										{salaryGrade.map((grade, index) => (
-											<DropdownItem key={index} label={grade?.NTRSALB_GRADE} value={grade?.NTRSALB_GRADE} />
+										{availableGrades.map((grade, index) => (
+											<DropdownItem key={index} label={grade} value={grade} />
 										))}
-									</Dropdown>
-									{loadingSalaryGrade && (
+									</DropdownTypeahead>
+									{loadingSalaryRateStructure && (
 										<div className={classes.loadingCircular}>
 											<CircularProgress />
 										</div>
@@ -587,28 +581,28 @@ const SalaryIncreaseRequestPage = () => {
 									<Dropdown
 										fullWidth
 										id={`${customId}-annual-salary`}
-										label={loadingSalaryStepInfo ? "Loading" : "Annual Salary or Base Wage"}
+										label={loadingSalaryRateStructure ? "Loading" : "Annual Salary or Base Wage"}
 										onChange={({ target: { value } }) => {
-											const record = salaryStepInfo.find((step) => step.NTRSALA_STEP === value);
+											const record = salaryRateStructure.find(item => item.grade === data.grade)?.stepStructures.find(step => step.step === value);
 											setData({
 												...data,
-												proposedSalary: parseInt(record?.NTRSALA_AMOUNT).toString(),
-												step: record?.NTRSALA_STEP
+												proposedSalary: parseInt(record?.amount?.value).toString(),
+												step: record?.step
 											});
 										}}
-										disabled={!data.personId}
+										disabled={!data.personId || !data.grade || !availableGrades.length}
 										value={data.step}
 										className={classes.field}
 									>
-										{salaryStepInfo.map((step) => (
+										{salaryRateStructure.find(item => item.grade === data.grade)?.stepStructures.map((step) => (
 											<DropdownItem
-												key={`${step?.NTRSALA_STEP}-${step?.NTRSALA_AMOUNT}`}
-												label={`${step?.NTRSALA_STEP} - $${currenyFormat(step?.NTRSALA_AMOUNT)}`}
-												value={step?.NTRSALA_STEP}
+												key={`${step?.step}-${step?.amount?.value}`}
+												label={`${step?.step} - ${step?.amount?.currency} ${currenyFormat(step?.amount?.value)}`}
+												value={step?.step}
 											/>
 										))}
 									</Dropdown>
-									{loadingSalaryStepInfo && (
+									{loadingSalaryRateStructure && (
 										<div className={classes.loadingCircular}>
 											<CircularProgress />
 										</div>
@@ -681,10 +675,6 @@ const SalaryIncreaseRequestPage = () => {
 									disabled={!data.personId}
 									className={classes.field}
 								/>
-								{/* <Typography variant="h4">Attachments (If Any)</Typography>
-								<Button id={`${customId}-file-upload`} endIcon={<Icon name="upload" />} className={classes.fieldUpload}>
-									Attach Files
-								</Button> */}
 								<Divider />
 								<div className={classes.submitButtonWrapper}>
 									<div>
@@ -729,13 +719,8 @@ function SalaryIncreaseRequestPageProviders() {
 		},
 		{
 			...options,
-			queryFunction: fetchSalaryGrade,
-			resource: salaryGradeResource
-		},
-		{
-			...options,
-			queryFunction: fetchSalaryStepInfo,
-			resource: salaryStepInfoResource
+			queryFunction: fetchSalaryRateStructure,
+			resource: salaryRateStructureResource
 		},
 		{
 			...options,
