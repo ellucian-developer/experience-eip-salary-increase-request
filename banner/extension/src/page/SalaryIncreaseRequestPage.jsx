@@ -149,7 +149,7 @@ const SalaryIncreaseRequestPage = () => {
 	});
 
 	const [availableGrades, setAvailableGrades] = useState([]);
-	// const [gradeError, setGradeError] = useState(false);
+	const [effectiveDateError, setEffectiveDateError] = useState(false);
 	const { authenticatedEthosFetch } = useData();
 	const [data, setData] = useState({
 		requestDate: new Date().toISOString().split("T")[0],
@@ -232,6 +232,7 @@ const SalaryIncreaseRequestPage = () => {
 			employeeName: "",
 			personId: "",
 			justification: "",
+			reasonTitle: "",
 			effectiveDate: "",
 			step: "",
 			compensationType: "",
@@ -288,7 +289,7 @@ const SalaryIncreaseRequestPage = () => {
 			requestedFor: data?.personId,
 			variables: {}
 		};
-		const newData = omit(data, ["table", "group", "departmentTitle", "startOn"]);
+		const newData = omit(data, ["departmentTitle", "startOn"]);
 		for (const item in newData) {
 			if (item in newData) {
 				payload.variables[item] = {
@@ -298,6 +299,7 @@ const SalaryIncreaseRequestPage = () => {
 		}
 		payload.variables['proposedSalaryFormatted'] = { value: `${data.currency} ${currenyFormat(data?.proposedSalary)}`};
 		payload.variables['currentSalaryFormatted'] = { value: `${data.currency} ${currenyFormat(data?.currentSalary)}`};
+		payload.variables['proposedSalary'] = { value: Number(data?.proposedSalary)};
 
 		const args = {
 			options: {
@@ -614,16 +616,21 @@ const SalaryIncreaseRequestPage = () => {
 									label="Reason Code*"
 									disabled={!data.personId}
 									onChange={({ target: { value } }) => {
+
+										// Find reason title
+										const reason = reasons.find((item) => item.code === value);
+
 										setData({
 											...data,
-											reasonCode: value
+											reasonCode: value,
+											reasonTitle: reason?.title
 										});
 									}}
 									value={data.reasonCode}
 									className={classes.field}
 								>
 									{reasons.map((reason) => (
-										<DropdownItem key={reason.code} label={reason.title} value={reason.title} />
+										<DropdownItem key={reason.code} label={`${reason.code} - ${reason.title}`} value={reason.code} />
 									))}
 								</Dropdown>
 								<div className={classes.fieldWrapper}>
@@ -643,7 +650,15 @@ const SalaryIncreaseRequestPage = () => {
 												...data,
 												effectiveDate: yourDate
 											}));
+
+											if (new Date(yourDate) < new Date(data.startOn)) {
+												setEffectiveDateError(true);
+											} else {
+												setEffectiveDateError(false);
+											}
 										}}
+										error={effectiveDateError}
+										helperText={effectiveDateError && `Effective date should be greater than the employee's start date ${data.startOn}`}
 										classes={classes.field}
 										PopperProps={{
 											modifiers: [
@@ -655,7 +670,7 @@ const SalaryIncreaseRequestPage = () => {
 										}}
 									/>
 								</div>
-								<Typography gutterTop>
+								<Typography gutterTop gutterBottom>
 									Provide justification for the salary increase, including relevant details such as performance metrics
 									or market research. Your input will aid in the evaluation and approval process
 								</Typography>
@@ -672,6 +687,11 @@ const SalaryIncreaseRequestPage = () => {
 										}));
 									}}
 									value={data.justification}
+									maxCharacters={{
+										max: 4000,
+										allowOverflow: true,
+										tooltipText: 'The maximum number of characters allowed is 4000'
+									}}
 									disabled={!data.personId}
 									className={classes.field}
 								/>
@@ -685,7 +705,7 @@ const SalaryIncreaseRequestPage = () => {
 										</Button>
 									</div>
 									<div>
-										<Button id={`${customId}-submit`} type="submit" disabled={!data.personId || submitting}>
+										<Button id={`${customId}-submit`} type="submit" disabled={!data.personId || submitting || effectiveDateError || !data.grade || !data.step || !data.proposedSalary || !data.reasonCode || !data.effectiveDate}>
 											{submitting ? "Submitting" : "Submit"}
 										</Button>
 									</div>

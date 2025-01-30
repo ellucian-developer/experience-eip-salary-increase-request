@@ -6,6 +6,7 @@ segments:
   start-api_85d4f316-b3f1-42be-a6d8-76b45ce3d4e3:
     class: start-api
     classDisplayName: Start
+    segmentDescription: ''
     name: Start
     config:
       expirationDate: P120D
@@ -30,12 +31,13 @@ segments:
           type: String
           label: Position Code
         - name: currentSalary
-          type: Number
+          type: String
           label: Current Annual Salary
           isPerson: false
         - name: proposedSalary
-          type: String
+          type: Number
           label: Proposed Salary
+          isPerson: false
         - name: reasonCode
           type: String
           label: Reason Code
@@ -44,7 +46,7 @@ segments:
           label: Effective Date
         - name: justification
           type: String
-          label: Manager Comments
+          label: Original Justification
         - name: suffix
           type: String
           label: Suffix
@@ -72,6 +74,21 @@ segments:
         - name: erpId
           type: String
           label: Erp Id
+        - name: proposedSalaryFormatted
+          type: String
+          label: New Salary
+        - name: currentSalaryFormatted
+          type: String
+          label: Old Salary
+        - name: table
+          type: String
+          label: Table
+        - name: group
+          type: String
+          label: Group
+        - name: reasonTitle
+          type: String
+          label: Job Change Reason
     out:
       - approval-task_636df8d2-58bf-4136-833e-beb3be160ac9
   approval-task_636df8d2-58bf-4136-833e-beb3be160ac9:
@@ -80,8 +97,8 @@ segments:
     segmentDescription: A task for Salary Increase Request Workflow
     name: Salary Increase Approval
     config:
+      taskDisplayNameSelectedData: []
       approvalView:
-        approvalDetails: ""
         approvalSelectedData:
           - name: requestDate
             type: string
@@ -100,33 +117,34 @@ segments:
             displayName: Compensation Type
           - name: positionCode
             type: string
-            displayName: Position ID
-          - name: currentSalary
-            type: number
-            displayName: Current Annual Salary
-          - name: proposedSalary
-            type: string
-            displayName: Proposed Salary
-          - name: reasonCode
-            type: string
-            displayName: Reason Code
+            displayName: Position Code
           - name: effectiveDate
             type: string
             displayName: Effective Date
           - name: justification
             type: string
-            displayName: Manager Comments
+            displayName: Original Justification
+          - name: proposedSalaryFormatted
+            type: string
+            displayName: New Salary
+          - name: currentSalaryFormatted
+            type: string
+            displayName: Old Salary
+          - name: reasonTitle
+            type: string
+            displayName: Job Change Reason
           - name: __approval_task_636df8d2_58bf_4136_833e_beb3be160ac9_comment
             displayName: Salary Increase Approval Comment
         approvalDetailsSelectedData: []
         isCommentEnabled: true
+        approvalDetails: ' '
       userTaskActions:
         - label: Approve
           value: approve
         - label: Deny
           value: deny
-      assigneeType: person
-      assignee: 17bd6f8e-80dc-41d6-8370-b8cf1a2e4721
+      assigneeType: group
+      assignee: a3b6100b-96c6-4c05-8557-6c85704cc693
       sendExperienceNotification: true
       expNotificationMessage:
         assignment: A task for {workflowName} has been assigned.
@@ -134,6 +152,14 @@ segments:
       expNotificationIcon:
         assignment: requirements
         dueDate: requirements
+      sendEmailNotifications:
+        fromEmail: ''
+        assigneeNotification: true
+        participantNotification: false
+        otherNotification: false
+        participantRecipients: []
+        otherRecipients: []
+        enabled: false
     in:
       - start-api_85d4f316-b3f1-42be-a6d8-76b45ce3d4e3
     out:
@@ -144,8 +170,8 @@ segments:
     segmentDescription: A task for Salary Increase Request Workflow
     name: Salary Increase HR Approval
     config:
+      taskDisplayNameSelectedData: []
       approvalView:
-        approvalDetails: ""
         approvalSelectedData:
           - name: requestDate
             type: string
@@ -164,29 +190,28 @@ segments:
             displayName: Compensation Type
           - name: positionCode
             type: string
-            displayName: Position ID
-          - name: currentSalary
-            type: number
-            displayName: Current Annual Salary
-          - name: proposedSalary
-            type: string
-            displayName: Proposed Salary
-          - name: reasonCode
-            type: string
-            displayName: Reason Code
+            displayName: Position Code
           - name: effectiveDate
             type: string
             displayName: Effective Date
           - name: justification
             type: string
-            displayName: Manager Comments
+            displayName: Original Justification
+          - name: proposedSalaryFormatted
+            type: string
+            displayName: New Salary
+          - name: currentSalaryFormatted
+            type: string
+            displayName: Old Salary
+          - name: reasonTitle
+            type: string
+            displayName: Job Change Reason
           - name: __approval_task_636df8d2_58bf_4136_833e_beb3be160ac9_comment
             type: string
             displayName: Salary Increase Approval Comment
-          - name: __approval_task_a1d84187_6db6_4384_a5e1_87fbdf5ddbd8_comment
-            displayName: Salary Increase HR Approval Comment
         approvalDetailsSelectedData: []
-        isCommentEnabled: true
+        isCommentEnabled: false
+        approvalDetails: ' '
       userTaskActions:
         - label: Approve
           value: approve
@@ -201,124 +226,155 @@ segments:
       expNotificationIcon:
         assignment: requirements
         dueDate: requirements
+      sendEmailNotifications:
+        fromEmail: ''
+        assigneeNotification: true
+        participantNotification: false
+        otherNotification: false
+        participantRecipients: []
+        otherRecipients: []
+        enabled: false
     in:
       - split-task_5f7e8e0d-c71f-4413-964a-c7cc02cc1645
     out:
       - split-task_5c4959ac-8790-4b17-8d3e-aa9a4e83ad30
-  action_3d0750c4-f8e0-471d-938c-74d86e846438:
+  action_5f350672-9a32-48c9-b5e7-84ec3cfe50d6:
     class: action
     classDisplayName: Action
+    segmentDescription: ''
     name: Update Institution Jobs
     config:
       code: UPDATEINSTITUTIONJOBS
-      version: 1.0.0
+      version: 9.0.0
       isBaseline: false
       parameters: []
       inputs:
+        - inputSchemaName: step
+          processVariableName: step
+          mapType: processVariable
         - inputSchemaName: grade
           processVariableName: grade
-          mapType: processVariable
-        - inputSchemaName: personId
-          processVariableName: personId
-          mapType: processVariable
-        - inputSchemaName: employerId
-          processVariableName: employerId
-          mapType: processVariable
-        - inputSchemaName: positionId
-          processVariableName: positionId
-          mapType: processVariable
-        - inputSchemaName: departmentId
-          processVariableName: departmentId
-          mapType: processVariable
-        - inputSchemaName: currency
-          processVariableName: currency
-          mapType: processVariable
-        - inputSchemaName: startOn
-          processVariableName: effectiveDate
           mapType: processVariable
         - inputSchemaName: suffix
           processVariableName: suffix
           mapType: processVariable
-        - inputSchemaName: status
-          staticValue: active
-          mapType: staticValue
-        - inputSchemaName: salary
-          processVariableName: proposedSalary
-          mapType: processVariable
-        - inputSchemaName: period
-          staticValue: year
-          mapType: staticValue
-        - inputSchemaName: step
-          mapType: processVariable
-          processVariableName: step
-        - inputSchemaName: erpId
-          processVariableName: erpId
-          mapType: processVariable
-        - inputSchemaName: positionCode
-          processVariableName: positionCode
+        - inputSchemaName: startOn
+          processVariableName: effectiveDate
           mapType: processVariable
         - inputSchemaName: justification
           processVariableName: justification
           mapType: processVariable
+        - inputSchemaName: positionCode
+          processVariableName: positionCode
+          mapType: processVariable
+        - inputSchemaName: bannerId
+          processVariableName: erpId
+          mapType: processVariable
+        - inputSchemaName: group
+          processVariableName: group
+          mapType: processVariable
+        - inputSchemaName: table
+          processVariableName: table
+          mapType: processVariable
+        - inputSchemaName: jobChangeReasonCode
+          processVariableName: reasonCode
+          mapType: processVariable
     in:
       - split-task_5c4959ac-8790-4b17-8d3e-aa9a4e83ad30
     out:
-      - manual-task_fd79b852-2738-4976-90ba-627b7f726965
-  manual-task_fd79b852-2738-4976-90ba-627b7f726965:
+      - manual-task_cf80c5e7-a6e6-4387-a73b-916076bef277
+  manual-task_cf80c5e7-a6e6-4387-a73b-916076bef277:
     class: manual-task
     classDisplayName: Simple Task
-    segmentDescription: Your request for salary increase has been approved by the appliers
-    name: Salary Increase Request - Approved
+    segmentDescription: >-
+      Your request for salary increase request has been approved by HR Approval
+      Group
+    name: Salary Increase Request - Approval Notification
     config:
+      taskDisplayNameSelectedData: []
       taskDetails: >-
-        <p>Your request for salary increase has been approved by the
-        appliers</p>
+        <p>Your request for salary increase request has been approved by HR
+        Administrators.</p>
       taskDetailsSelectedData: []
       userTaskActions:
         - label: Complete
           value: complete
-      assigneeType: data
-      assignee: __requestedBy
-      sendExperienceNotification: true
+      assigneeType: group
+      assignee: a3b6100b-96c6-4c05-8557-6c85704cc693
+      sendExperienceNotification: false
       expNotificationMessage:
         assignment: A task for {workflowName} has been assigned.
         dueDate: A task for {workflowName} is overdue.
       expNotificationIcon:
         assignment: requirements
         dueDate: requirements
+      sendEmailNotifications:
+        fromEmail: ''
+        assigneeNotification: true
+        participantNotification: false
+        otherNotification: false
+        participantRecipients: []
+        otherRecipients: []
+        enabled: false
     in:
-      - action_3d0750c4-f8e0-471d-938c-74d86e846438
+      - action_5f350672-9a32-48c9-b5e7-84ec3cfe50d6
     out:
       - end_adf4fd8f-f7ae-401b-96d1-9935861e03be
   end_adf4fd8f-f7ae-401b-96d1-9935861e03be:
     class: end
     classDisplayName: End
+    segmentDescription: ''
     name: End
-    config: {}
+    config:
+      sendEmailNotifications:
+        fromEmail: saravanan.sampathkumar@ellucian.com
+        assigneeNotification: false
+        participantNotification: false
+        otherNotification: true
+        participantRecipients:
+          - recipientType: approval-group
+            value: e76f521c-954e-484c-8119-64214980e7cc
+          - recipientType: approval-group
+            value: a3b6100b-96c6-4c05-8557-6c85704cc693
+        otherRecipients:
+          - recipientType: email-address
+            value: saravanan.sampathkumar@ellucian.com
+        enabled: true
     in:
-      - manual-task_fd79b852-2738-4976-90ba-627b7f726965
-  manual-task_7d50c1fa-6579-421b-8268-2f8036195a43:
+      - manual-task_cf80c5e7-a6e6-4387-a73b-916076bef277
+  manual-task_22b4e386-5bf1-407f-9d2a-0bf38d135005:
     class: manual-task
     classDisplayName: Simple Task
-    segmentDescription: Your request for salary increase has been rejected by the appliers
-    name: Salary Increase Request - Rejected
+    segmentDescription: >-
+      Your request for salary increase request has been rejected by HR Approval
+      Group
+    name: Salary Increase Request - Rejected Notification
     config:
+      taskDisplayNameSelectedData: []
       taskDetails: >-
-        <p>Your request for salary increase has been rejected by the
-        appliers</p>
+        <p>Your request for salary increase request has been declined by HR
+        Administrators.</p>
       taskDetailsSelectedData: []
       userTaskActions:
         - label: Complete
           value: complete
-      assigneeType: data
-      assignee: __requestedBy
-      sendExperienceNotification: true
+      assigneeType: group
+      assignee: a3b6100b-96c6-4c05-8557-6c85704cc693
+      sendExperienceNotification: false
       expNotificationMessage:
         assignment: A task for {workflowName} has been assigned.
         dueDate: A task for {workflowName} is overdue.
       expNotificationIcon:
         assignment: requirements
         dueDate: requirements
+      sendEmailNotifications:
+        fromEmail: ''
+        assigneeNotification: true
+        participantNotification: false
+        otherNotification: false
+        participantRecipients: []
+        otherRecipients: []
+        enabled: false
     in:
       - split-task_5c4959ac-8790-4b17-8d3e-aa9a4e83ad30
     out:
@@ -326,58 +382,52 @@ segments:
   end_ea2ce3c2-cc9e-46ff-ac17-fc1f18581cf9:
     class: end
     classDisplayName: End
-    name: End
-    config: {}
+    segmentDescription: ''
+    name: Rejected
+    config:
+      sendEmailNotifications:
+        fromEmail: ''
+        assigneeNotification: true
+        participantNotification: false
+        otherNotification: false
+        participantRecipients: []
+        otherRecipients: []
+        enabled: false
     in:
-      - manual-task_7d50c1fa-6579-421b-8268-2f8036195a43
+      - manual-task_22b4e386-5bf1-407f-9d2a-0bf38d135005
   split-task_5c4959ac-8790-4b17-8d3e-aa9a4e83ad30:
     class: split-task
     classDisplayName: Split
+    segmentDescription: ''
     name: Split2
     config: {}
     in:
       - approval-task_a1d84187-6db6-4384-a5e1-87fbdf5ddbd8
     out:
-      - node: action_3d0750c4-f8e0-471d-938c-74d86e846438
+      - node: action_5f350672-9a32-48c9-b5e7-84ec3cfe50d6
         condition: default
-      - node: manual-task_7d50c1fa-6579-421b-8268-2f8036195a43
+      - node: manual-task_22b4e386-5bf1-407f-9d2a-0bf38d135005
         condition: __approval_task_a1d84187_6db6_4384_a5e1_87fbdf5ddbd8_outcome == 'deny'
-  manual-task_3503d3f1-b200-4949-8962-d609ab95cbdb:
-    class: manual-task
-    classDisplayName: Simple Task
-    segmentDescription: Your request for salary increase has been rejected by the approvers
-    name: Salary Increase Request - Declined
-    config:
-      taskDetails: >-
-        <p>Your request for salary increase has been rejected by the
-        approvers</p>
-      taskDetailsSelectedData: []
-      userTaskActions:
-        - label: Complete
-          value: complete
-      assigneeType: data
-      assignee: __requestedBy
-      sendExperienceNotification: true
-      expNotificationMessage:
-        assignment: A task for {workflowName} has been assigned.
-        dueDate: A task for {workflowName} is overdue.
-      expNotificationIcon:
-        assignment: requirements
-        dueDate: requirements
-    in:
-      - split-task_5f7e8e0d-c71f-4413-964a-c7cc02cc1645
-    out:
-      - end_44a133d1-d16d-4d33-bc2d-1d4d9674d046
   end_44a133d1-d16d-4d33-bc2d-1d4d9674d046:
     class: end
     classDisplayName: End
-    name: End
-    config: {}
+    segmentDescription: ''
+    name: Approvers Rejected
+    config:
+      sendEmailNotifications:
+        fromEmail: ''
+        assigneeNotification: true
+        participantNotification: false
+        otherNotification: false
+        participantRecipients: []
+        otherRecipients: []
+        enabled: false
     in:
-      - manual-task_3503d3f1-b200-4949-8962-d609ab95cbdb
+      - split-task_5f7e8e0d-c71f-4413-964a-c7cc02cc1645
   split-task_5f7e8e0d-c71f-4413-964a-c7cc02cc1645:
     class: split-task
     classDisplayName: Split
+    segmentDescription: ''
     name: Split
     config: {}
     in:
@@ -385,5 +435,5 @@ segments:
     out:
       - node: approval-task_a1d84187-6db6-4384-a5e1-87fbdf5ddbd8
         condition: default
-      - node: manual-task_3503d3f1-b200-4949-8962-d609ab95cbdb
+      - node: end_44a133d1-d16d-4d33-bc2d-1d4d9674d046
         condition: __approval_task_636df8d2_58bf_4136_833e_beb3be160ac9_outcome == 'deny'

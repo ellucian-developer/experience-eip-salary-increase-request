@@ -139,12 +139,10 @@ This extension necessitated the utilization of both EEDM, BP APIs and couple of 
 | [institution-positions](https://resources.elluciancloud.com/bundle/banner_api_ethos_api_institution_positions_12.0.0/page/institution-positions.html)                 |  EEDM           |
 | [employment-departments](https://resources.elluciancloud.com/bundle/banner_api_ethos_api_employment_departments_12.1.0/page/employment-departments.html)                |  EEDM           |
 | [employee-job-assignments](https://resources.elluciancloud.com/bundle/banner_api_erp_api_employee_job_assignments_1.0.0/page/employee-job-assignments.html)              |  Banner ERP API |
+| [employee-job-details](https://resources.elluciancloud.com/bundle/banner_api_erp_api_employee_job_details_1.0.0/page/employee-job-details.html)              |  Banner ERP API |
 
 - [workflow-instances (Maestro Workflow API)](https://resources.elluciancloud.com/bundle/services_maestro_api_api_workflow_instances_1.0.0/page/workflow-instances.html)
   
-In addition to EEDM & Banner ERP APIs, we also use a [custom API](https://resources.elluciancloud.com/bundle/banner_ethos_api_acn_use/page/c_create_cust_api.html) since we had data requirements to pull in salary grade and salary step for fill up salary pay grade data. 
-
-And finally, we also had to use [Schema extensibility](https://resources.elluciancloud.com/bundle/banner_exten_acn_use/page/c_schema_extensiblty.html) to `NBRJOBS` table to capture the user's justification comment for the salary increase request.
 
 ### DataConnect Serverless APIs & Authorization
 
@@ -157,14 +155,12 @@ Kindly check the below documentation links for creating Serverless APIs and sett
 
 For the documentation on `workflow-instances`, kindly refer [here](https://resources.elluciancloud.com/bundle/services_maestro_api_api_workflow_instances_1.0.0/page/workflow-instances.html).
 
-| Endpoint| API Type        |  Token Type | Description   |
-| --------| ----------------|---------|--------------------- |
-| [get-job-change-reasons-hr-salary-increase-request](../data-connect/get-job-change-reasons-hr-salary-increase-request.json) | | User Token | |
-| [get-persons-hr-salary-increase-request](../data-connect/get-persons-hr-salary-increase-request.json) | | User Token | |
-| [get-persons-info-hr-salary-increase-request](../data-connect/get-persons-info-hr-salary-increase-request.json) | | User Token | |
-| [get-x-salary-grade-hr-salary-increase-request](../data-connect/get-x-salary-grade-hr-salary-increase-request.json) | Spec API | User Token | Fetches the available salary grades |
-| [get-x-salary-step-info-hr-salary-increase-request](../data-connect/get-x-salary-step-info-hr-salary-increase-request.json) | Spec API | User Token | Fetches the available salary steps for selected grades |
-| [save-salary-increase-request](../data-connect/save-salary-increase-request.json) | Custom API | **Ethos Token** | This API updates the employee salary by calling `institution-jobs` API and captures the justification data to custom table |
+| Endpoint|   Token Type | Description   |
+| --------| ---------|--------------------- |
+| [get-job-change-reasons-hr-salary-increase-request](../data-connect/get-job-change-reasons-hr-salary-increase-request.json) | User Token | |
+| [get-persons-hr-salary-increase-request](../data-connect/get-persons-hr-salary-increase-request.json) | User Token | |
+| [get-persons-info-hr-salary-increase-request](../data-connect/get-persons-info-hr-salary-increase-request.json) | User Token | |
+| [save-salary-increase-request](../data-connect/save-salary-increase-request.json) | **Ethos Token** | This API updates the employee salary by calling `employee-job-details` API and captures the justification comment |
 
 ## Path Design System
 

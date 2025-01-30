@@ -15,18 +15,6 @@
           "type": "string",
           "title": "Grade"
         },
-        "period": {
-          "type": "string",
-          "title": "Period"
-        },
-        "salary": {
-          "type": "string",
-          "title": "Salary"
-        },
-        "status": {
-          "type": "string",
-          "title": "Status"
-        },
         "suffix": {
           "type": "string",
           "title": "Suffix"
@@ -34,26 +22,6 @@
         "startOn": {
           "type": "string",
           "title": "Start On"
-        },
-        "currency": {
-          "type": "string",
-          "title": "Currency"
-        },
-        "personId": {
-          "type": "string",
-          "title": "Person Id"
-        },
-        "employerId": {
-          "type": "string",
-          "title": "Employer Id"
-        },
-        "positionId": {
-          "type": "string",
-          "title": "Position Id"
-        },
-        "departmentId": {
-          "type": "string",
-          "title": "Department Id"
         },
         "justification": {
           "type": "string",
@@ -63,35 +31,40 @@
           "type": "string",
           "title": "Position Code"
         },
-        "erpId": {
+        "jobChangeReasonCode": {
           "type": "string",
-          "title": "ERP ID"
+          "title": "Job Change Reason Code"
+        },
+        "bannerId": {
+          "type": "string",
+          "title": "Banner ID"
+        },
+        "group": {
+          "type": "string",
+          "title": "Group"
+        },
+        "table": {
+          "type": "string",
+          "title": "Table"
         }
       },
       "required": [
         "step",
         "grade",
-        "period",
-        "salary",
-        "status",
         "suffix",
         "startOn",
-        "currency",
-        "personId",
-        "employerId",
-        "positionId",
-        "departmentId",
         "justification",
         "positionCode",
-        "erpId"
+        "jobChangeReasonCode",
+        "bannerId",
+        "group",
+        "table"
       ]
     }
   },
   "pipeline": [
     "Prepare Payload",
-    "institution-jobs",
-    "JavaScript Transform",
-    "xnbrjobs"
+    "employee-job-details"
   ],
   "segments": {
     "Prepare Payload": {
@@ -100,31 +73,13 @@
         "pushUndefined": true,
         "stopOnError": false,
         "draft": false,
-        "code": "function transform (message, context) {\n  context.set('erpId', message.payload.erpId);\n  context.set('justification', message.payload.justification);\n  context.set('positionCode', message.payload.positionCode);\n  const payload = {\n      \"department\": {\n        \"id\": message.payload.departmentId\n      },\n      \"employer\": {\n        \"id\": message.payload.employerId\n      },\n      \"id\": \"00000000-0000-0000-0000-000000000000\",\n      \"person\": {\n        \"id\": message.payload.personId\n      },\n      \"position\": {\n        \"id\": message.payload.positionId\n      },\n      \"salaries\": [\n        {\n          \"amount\": {\n            \"period\": message.payload.period,\n            \"rate\": {\n              \"currency\": message.payload.currency,\n              \"value\": Number(message.payload.salary)\n            }\n          },\n          \"grade\": message.payload.grade,\n          \"step\": message.payload.step\n        }\n      ],\n      \"startOn\": message.payload.startOn,\n      \"status\": message.payload.status,\n      \"suffix\": message.payload.suffix\n  }\n\n  message.payload = payload;\n  return message;\n}\n"
+        "code": "function transform (message, context) {\n  context.set('erpId', message.payload.erpId);\n  context.set('justification', message.payload.justification);\n  context.set('positionCode', message.payload.positionCode);\n  const payload = {\n      \"id\": \"00000000-0000-0000-0000-000000000000\",\n      \"bannerId\": message.payload.bannerId,\n      \"position\": message.payload.positionCode,\n      \"suffix\": message.payload.suffix,\n      \"effectiveOn\": message.payload.startOn,\n      \"comment\": message.payload.justification,\n      \"salaryGrade\": message.payload.grade,\n      \"salaryGroup\": message.payload.group,\n      \"salaryStep\": Number(message.payload.step),\n      \"salaryTable\": message.payload.table,\n      \"jobChangeReasonCode\": message.payload.jobChangeReasonCode\n  }\n\n  message.payload = payload;\n  return message;\n}\n"
       }
     },
-    "institution-jobs": {
+    "employee-job-details": {
       "class": "ethosProxyPost",
       "config": {
-        "resource": "institution-jobs",
-        "contentVersion": "12",
-        "acceptVersion": "12",
-        "target": "jobs",
-        "ignoreErrors": false
-      }
-    },
-    "JavaScript Transform": {
-      "class": "JavaScriptTransform",
-      "config": {
-        "pushUndefined": true,
-        "stopOnError": false,
-        "code": "function transform (message, context) {\n  const { jobs } = message.payload;\n  message.payload = {\n    \"id\": \"00000000-0000-0000-0000-000000000000\",\n    \"xbannerId\": context.erpId,\n    \"xnbrjobsPosn\": context.positionCode,\n    \"xnbrjobsSuff\": jobs.suffix,\n    \"xnbrjobsEffectiveDate\": jobs.startOn,\n    \"xnbrjobsJustification\": context.justification\n  }\n  return message;\n}\n"
-      }
-    },
-    "xnbrjobs": {
-      "class": "ethosProxyPost",
-      "config": {
-        "resource": "x-xnbrjobs",
+        "resource": "employee-job-details",
         "contentVersion": "1",
         "acceptVersion": "1",
         "ignoreErrors": false
