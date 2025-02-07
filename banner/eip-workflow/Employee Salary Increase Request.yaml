@@ -327,7 +327,7 @@ segments:
     name: End
     config:
       sendEmailNotifications:
-        fromEmail: saravanan.sampathkumar@ellucian.com
+        fromEmail: 
         assigneeNotification: false
         participantNotification: false
         otherNotification: true
@@ -336,9 +336,7 @@ segments:
             value: e76f521c-954e-484c-8119-64214980e7cc
           - recipientType: approval-group
             value: a3b6100b-96c6-4c05-8557-6c85704cc693
-        otherRecipients:
-          - recipientType: email-address
-            value: saravanan.sampathkumar@ellucian.com
+        otherRecipients: []
         enabled: true
     in:
       - manual-task_cf80c5e7-a6e6-4387-a73b-916076bef277

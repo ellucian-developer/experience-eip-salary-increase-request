@@ -141,6 +141,7 @@ const SalaryIncreaseRequestPage = () => {
 		open: false,
 		message: ""
 	});
+	const [effectiveDateError, setEffectiveDateError] = useState(false);
 	const { authenticatedEthosFetch } = useData();
 	const [data, setData] = useState({
 		requestDate: new Date().toISOString().split("T")[0],
@@ -280,6 +281,9 @@ const SalaryIncreaseRequestPage = () => {
 			value: new Date().toISOString().split("T")[0]
 		};
 
+		payload.variables['proposedSalaryFormatted'] = { value: `${data.currency} ${currenyFormat(data?.proposedSalary)}`};
+		payload.variables['currentSalaryFormatted'] = { value: `${data.currency} ${currenyFormat(data?.currentSalary)}`};
+
 		const args = {
 			options: {
 				method: "POST",
@@ -369,7 +373,7 @@ const SalaryIncreaseRequestPage = () => {
 					<Grid item xs={12} lg={9}>
 						<Card>
 							<div>
-								<h2>Employee Salary Increase Request Form</h2>
+								<h2>Employee Salary Increase Request Form Colleague</h2>
 								<h4>Employee Information</h4>
 								<p>{`Search and Select the employee's Name or ERP ID for whom you are requesting a salary increase`}</p>
 								<Search
@@ -507,6 +511,16 @@ const SalaryIncreaseRequestPage = () => {
 												)}
 											</div>
 										</li>
+										<li className={classes.infoList}>
+											<span className={classes.infoTitle}>Start On:</span>
+											<div className={classes.dataPoint}>
+												{loadingPersonInfo ? (
+													<Skeleton className={classes.skelton} rectangle paragraph={{ width: 44 }} />
+												) : (
+													data?.startOn
+												)}
+											</div>
+										</li>
 									</ul>
 								)}
 								<Divider />
@@ -556,7 +570,15 @@ const SalaryIncreaseRequestPage = () => {
 												...data,
 												effectiveDate: yourDate
 											}));
+
+											if (new Date(yourDate) < new Date(data.startOn)) {
+												setEffectiveDateError(true);
+											} else {
+												setEffectiveDateError(false);
+											}
 										}}
+										error={effectiveDateError}
+										helperText={effectiveDateError && `Effective date should be greater than the employee's start date ${data.startOn}`}
 										classes={classes.field}
 										PopperProps={{
 											modifiers: [
@@ -578,7 +600,7 @@ const SalaryIncreaseRequestPage = () => {
 										</Button>
 									</div>
 									<div>
-										<Button id={`${customId}-submit`} type="submit" disabled={!data.personId || submitting}>
+										<Button id={`${customId}-submit`} type="submit" disabled={!data.personId || effectiveDateError || !data.proposedSalary || submitting}>
 											{submitting ? "Submitting" : "Submit"}
 										</Button>
 									</div>
