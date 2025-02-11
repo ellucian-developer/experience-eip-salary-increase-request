@@ -131,17 +131,17 @@ Under the start section, we have configure all the above mentioned API variables
 
 This extension necessitated the utilization of both EEDM, BP APIs and couple of Spec APIs along with custom DataConnect Serverless APIs. The following is a compilation of the APIs employed in this context
 
-| Endpoint                              | API Type        |   
-| ------------------------------------- | ----------------|
-| [job-change-reasons](https://resources.elluciancloud.com/bundle/banner_api_ethos_api_job_change_reasons_7.0.0/page/job-change-reasons.html)                    |  EEDM           |
-| [persons](https://resources.elluciancloud.com/bundle/banner_api_ethos_api_persons_12.6.0/page/persons.html)                               |  EEDM           |
-| [institution-jobs](https://resources.elluciancloud.com/bundle/banner_api_ethos_api_institution_jobs_12.2.0/page/institution-jobs.html)                      |  EEDM           |
-| [institution-positions](https://resources.elluciancloud.com/bundle/banner_api_ethos_api_institution_positions_12.0.0/page/institution-positions.html)                 |  EEDM           |
-| [employment-departments](https://resources.elluciancloud.com/bundle/banner_api_ethos_api_employment_departments_12.1.0/page/employment-departments.html)                |  EEDM           |
-| [employee-job-assignments](https://resources.elluciancloud.com/bundle/banner_api_erp_api_employee_job_assignments_1.0.0/page/employee-job-assignments.html)              |  Banner ERP API |
-| [employee-job-details](https://resources.elluciancloud.com/bundle/banner_api_erp_api_employee_job_details_1.0.0/page/employee-job-details.html)              |  Banner ERP API |
+| Endpoint                              | API Type        |   API Version |
+| ------------------------------------- | ----------------|---|
+| [job-change-reasons](https://resources.elluciancloud.com/bundle/banner_api_ethos_api_job_change_reasons_7.0.0/page/job-change-reasons.html)                    |  EEDM           | 7.0.0|
+| [persons](https://resources.elluciancloud.com/bundle/banner_api_ethos_api_persons_12.6.0/page/persons.html)                               |  EEDM           | 12.6.0 |
+| [institution-jobs](https://resources.elluciancloud.com/bundle/banner_api_ethos_api_institution_jobs_12.2.0/page/institution-jobs.html)                      |  EEDM           | 12.2.0 |
+| [institution-positions](https://resources.elluciancloud.com/bundle/banner_api_ethos_api_institution_positions_12.0.0/page/institution-positions.html)                 |  EEDM           | 12.0.0 |
+| [employment-departments](https://resources.elluciancloud.com/bundle/banner_api_ethos_api_employment_departments_12.1.0/page/employment-departments.html)                |  EEDM           | 12.1.0 |
+| [employee-job-assignments](https://resources.elluciancloud.com/bundle/banner_api_erp_api_employee_job_assignments_1.0.0/page/employee-job-assignments.html)              |  Banner ERP API | 1.0.0 |
+| [employee-job-details](https://resources.elluciancloud.com/bundle/banner_api_erp_api_employee_job_details_1.0.0/page/employee-job-details.html)              |  Banner ERP API | 1.0.0 |
 
-- [workflow-instances (Maestro Workflow API)](https://resources.elluciancloud.com/bundle/services_maestro_api_api_workflow_instances_1.0.0/page/workflow-instances.html)
+- [workflow-instances (Maestro Workflow API)](https://resources.elluciancloud.com/bundle/saas_eip_api_api_workflow_instances_1.0.0/page/workflow-instances.html)
   
 
 ### DataConnect Serverless APIs & Authorization
